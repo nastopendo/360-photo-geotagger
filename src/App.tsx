@@ -1,10 +1,21 @@
-export default function App() {
+import { Header } from '@/components/layout/Header'
+import { Sidebar } from '@/components/layout/Sidebar'
+import { MainPanel } from '@/components/layout/MainPanel'
+import { useMatching } from '@/hooks/useMatching'
+
+function AppInner() {
+  useMatching()
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">360° Photo Geotagger</h1>
-        <p className="text-gray-500">Geotagging your 360° photos — coming soon</p>
+    <div className="flex h-full flex-col">
+      <Header />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar />
+        <MainPanel />
       </div>
     </div>
   )
+}
+
+export default function App() {
+  return <AppInner />
 }

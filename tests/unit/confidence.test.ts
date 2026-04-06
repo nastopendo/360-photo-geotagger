@@ -15,14 +15,8 @@ describe('computeConfidence', () => {
     expect(result.tier).toBe('none')
   })
 
-  it('returns value=0.85 tier=high for nearest at delta=0', () => {
+  it('returns value=1.0 tier=high for nearest at delta=0', () => {
     const result = computeConfidence(0, 'nearest', MAX)
-    expect(result.value).toBeCloseTo(0.85)
-    expect(result.tier).toBe('high')
-  })
-
-  it('returns value=1.0 tier=high for interpolated at delta=0', () => {
-    const result = computeConfidence(0, 'interpolated', MAX)
     expect(result.value).toBeCloseTo(1.0)
     expect(result.tier).toBe('high')
   })
@@ -34,15 +28,7 @@ describe('computeConfidence', () => {
   })
 
   it('returns tier=medium for nearest at 50% of maxDelta', () => {
-    // base = 0.5, × 0.85 = 0.425 → 'low'
     const result = computeConfidence(MAX / 2, 'nearest', MAX)
-    expect(result.value).toBeCloseTo(0.425)
-    expect(result.tier).toBe('low')
-  })
-
-  it('returns tier=medium for interpolated at 50% of maxDelta', () => {
-    // base = 0.5, × 1.0 = 0.5 → 'medium' (borderline)
-    const result = computeConfidence(MAX / 2, 'interpolated', MAX)
     expect(result.value).toBeCloseTo(0.5)
     expect(result.tier).toBe('medium')
   })

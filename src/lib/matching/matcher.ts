@@ -1,5 +1,4 @@
 import type { Photo360, ReferencePhoto, MatchResult, AppSettings, GpsCoordinate } from '@/types'
-import { interpolateGps } from './interpolator'
 import { computeConfidence } from './confidence'
 
 export interface MatchInput {
@@ -22,8 +21,7 @@ function matchOne(
   sortedRefs: ReferencePhoto[],
   settings: AppSettings,
 ): MatchResult {
-  const base: Omit<MatchResult, 'method' | 'assignedGps' | 'nearestRefId' | 'timeDeltaMs'
-    | 'secondRefId' | 'interpolationFraction' | 'confidence'> = {
+  const base: Omit<MatchResult, 'method' | 'assignedGps' | 'nearestRefId' | 'timeDeltaMs' | 'confidence'> = {
     photo360Id: photo.id,
     manualOverride: null,
     overrideNote: '',
@@ -36,8 +34,6 @@ function matchOne(
       assignedGps: null,
       nearestRefId: null,
       timeDeltaMs: null,
-      secondRefId: null,
-      interpolationFraction: null,
       confidence: computeConfidence(0, 'unmatched', settings.maxDeltaMs),
     }
   }
@@ -48,31 +44,6 @@ function matchOne(
   const deltasBefore = before ? Math.abs(adjustedEpoch - before.timestamp!.epochMs) : Infinity
   const deltasAfter = after ? Math.abs(after.timestamp!.epochMs - adjustedEpoch) : Infinity
 
-  // Try interpolation first (requires both brackets within threshold)
-  if (
-    settings.interpolate &&
-    before && after &&
-    deltasBefore <= settings.maxDeltaMs &&
-    deltasAfter <= settings.maxDeltaMs
-  ) {
-    const spanMs = after.timestamp!.epochMs - before.timestamp!.epochMs
-    const fraction = spanMs > 0 ? (adjustedEpoch - before.timestamp!.epochMs) / spanMs : 0
-    const gps = interpolateGps(before.gps!, after.gps!, fraction)
-    const timeDeltaMs = adjustedEpoch - before.timestamp!.epochMs
-
-    return {
-      ...base,
-      method: 'interpolated',
-      assignedGps: gps,
-      nearestRefId: before.id,
-      timeDeltaMs,
-      secondRefId: after.id,
-      interpolationFraction: fraction,
-      confidence: computeConfidence(Math.min(deltasBefore, deltasAfter), 'interpolated', settings.maxDeltaMs),
-    }
-  }
-
-  // Fall back to nearest single reference
   const nearest = deltasBefore <= deltasAfter ? before : after
   if (!nearest) {
     return {
@@ -81,8 +52,6 @@ function matchOne(
       assignedGps: null,
       nearestRefId: null,
       timeDeltaMs: null,
-      secondRefId: null,
-      interpolationFraction: null,
       confidence: computeConfidence(0, 'unmatched', settings.maxDeltaMs),
     }
   }
@@ -97,8 +66,6 @@ function matchOne(
       assignedGps: null,
       nearestRefId: nearest.id,
       timeDeltaMs,
-      secondRefId: null,
-      interpolationFraction: null,
       confidence: computeConfidence(absDelta, 'unmatched', settings.maxDeltaMs),
     }
   }
@@ -109,8 +76,6 @@ function matchOne(
     assignedGps: nearest.gps as GpsCoordinate,
     nearestRefId: nearest.id,
     timeDeltaMs,
-    secondRefId: null,
-    interpolationFraction: null,
     confidence: computeConfidence(absDelta, 'nearest', settings.maxDeltaMs),
   }
 }

@@ -4,7 +4,6 @@ import {
   makeRefPhoto,
   GPS_WARSAW,
   GPS_KRAKOW,
-  GPS_MIDPOINT,
   TS_2024_06_15_10_00,
   TS_2024_06_15_10_01,
   TS_2024_06_15_10_02,
@@ -15,7 +14,6 @@ import type { AppSettings } from '@/types'
 const DEFAULT_SETTINGS: AppSettings = {
   timeOffsetMs: 0,
   maxDeltaMs: 5 * 60 * 1000,
-  interpolate: true,
 }
 
 describe('runMatching', () => {
@@ -44,10 +42,28 @@ describe('runMatching', () => {
       const [result] = runMatching({
         photos360: [photo],
         referencePhotos: [refClose, refFar],
-        settings: { ...DEFAULT_SETTINGS, interpolate: false },
+        settings: DEFAULT_SETTINGS,
       })
 
       expect(result.nearestRefId).toBe(refClose.id)
+      expect(result.assignedGps?.lat).toBeCloseTo(GPS_WARSAW.lat, 6)
+    })
+
+    it('picks closer of bracketing references', () => {
+      // photo at T+1min, refs at T+0 and T+2min → before (1m away) == after (1m away) → picks before
+      const photo = makePhoto360({ timestamp: TS_2024_06_15_10_01 })
+      const refBefore = makeRefPhoto(GPS_WARSAW, TS_2024_06_15_10_00)
+      const refAfter = makeRefPhoto(GPS_KRAKOW, TS_2024_06_15_10_02)
+
+      const [result] = runMatching({
+        photos360: [photo],
+        referencePhotos: [refBefore, refAfter],
+        settings: DEFAULT_SETTINGS,
+      })
+
+      expect(result.method).toBe('nearest')
+      // Both are 1m away; before wins on tie
+      expect(result.nearestRefId).toBe(refBefore.id)
       expect(result.assignedGps?.lat).toBeCloseTo(GPS_WARSAW.lat, 6)
     })
 
@@ -79,7 +95,7 @@ describe('runMatching', () => {
       const [result] = runMatching({
         photos360: [photo],
         referencePhotos: [ref],
-        settings: { ...DEFAULT_SETTINGS, maxDeltaMs: 4 * 60 * 1000, interpolate: false },
+        settings: { ...DEFAULT_SETTINGS, maxDeltaMs: 4 * 60 * 1000 },
       })
       expect(result.method).toBe('unmatched')
     })
@@ -90,59 +106,9 @@ describe('runMatching', () => {
       const [result] = runMatching({
         photos360: [photo],
         referencePhotos: [ref],
-        settings: { ...DEFAULT_SETTINGS, maxDeltaMs: 5 * 60 * 1000, interpolate: false },
+        settings: { ...DEFAULT_SETTINGS, maxDeltaMs: 5 * 60 * 1000 },
       })
       expect(result.method).toBe('nearest')
-    })
-  })
-
-  describe('interpolation', () => {
-    it('interpolates when bracketed and interpolate=true', () => {
-      // photo at T+1min, refs at T+0 and T+2min → fraction = 0.5
-      const photo = makePhoto360({ timestamp: TS_2024_06_15_10_01 })
-      const refBefore = makeRefPhoto(GPS_WARSAW, TS_2024_06_15_10_00)
-      const refAfter = makeRefPhoto(GPS_KRAKOW, TS_2024_06_15_10_02)
-
-      const [result] = runMatching({
-        photos360: [photo],
-        referencePhotos: [refBefore, refAfter],
-        settings: DEFAULT_SETTINGS,
-      })
-
-      expect(result.method).toBe('interpolated')
-      expect(result.interpolationFraction).toBeCloseTo(0.5, 5)
-      expect(result.assignedGps?.lat).toBeCloseTo(GPS_MIDPOINT.lat, 4)
-    })
-
-    it('falls back to nearest when interpolate=false', () => {
-      const photo = makePhoto360({ timestamp: TS_2024_06_15_10_01 })
-      const refBefore = makeRefPhoto(GPS_WARSAW, TS_2024_06_15_10_00)
-      const refAfter = makeRefPhoto(GPS_KRAKOW, TS_2024_06_15_10_02)
-
-      const [result] = runMatching({
-        photos360: [photo],
-        referencePhotos: [refBefore, refAfter],
-        settings: { ...DEFAULT_SETTINGS, interpolate: false },
-      })
-
-      expect(result.method).toBe('nearest')
-    })
-
-    it('does not interpolate when one bracket exceeds maxDelta', () => {
-      const photo = makePhoto360({ timestamp: TS_2024_06_15_10_01 })
-      const refBefore = makeRefPhoto(GPS_WARSAW, TS_2024_06_15_10_00)
-      // refAfter is 4 minutes away — within 5m threshold but still tests that both must qualify
-      const refAfter = makeRefPhoto(GPS_KRAKOW, TS_2024_06_15_10_05)
-
-      const [result] = runMatching({
-        photos360: [photo],
-        referencePhotos: [refBefore, refAfter],
-        settings: { ...DEFAULT_SETTINGS, maxDeltaMs: 2 * 60 * 1000 },
-      })
-
-      // refAfter (4m) > maxDelta (2m), so no interpolation → nearest = refBefore
-      expect(result.method).toBe('nearest')
-      expect(result.nearestRefId).toBe(refBefore.id)
     })
   })
 
@@ -157,7 +123,7 @@ describe('runMatching', () => {
       const [result] = runMatching({
         photos360: [photo],
         referencePhotos: [ref],
-        settings: { ...DEFAULT_SETTINGS, timeOffsetMs: 60_000, interpolate: false }, // +1 min offset
+        settings: { ...DEFAULT_SETTINGS, timeOffsetMs: 60_000 }, // +1 min offset
       })
 
       // Adjusted epoch = TS_10_01 - 60000 = TS_10_00 → delta = 0
@@ -187,7 +153,7 @@ describe('runMatching', () => {
       const results = runMatching({
         photos360: [photo1, photo2],
         referencePhotos: [ref1, ref2],
-        settings: { ...DEFAULT_SETTINGS, interpolate: false },
+        settings: DEFAULT_SETTINGS,
       })
 
       expect(results).toHaveLength(2)

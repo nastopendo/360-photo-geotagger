@@ -21,24 +21,14 @@ export function computeConfidence(
   }
 
   const abs = Math.abs(timeDeltaMs)
-  const base = Math.max(0, Math.min(1, 1 - abs / maxDeltaMs))
-
-  // Interpolated is the best automatic method (bracketed in time)
-  // Nearest is slightly penalised (may extrapolate)
-  const methodMultiplier = method === 'interpolated' ? 1.0 : 0.85
-  const value = base * methodMultiplier
+  const value = Math.max(0, Math.min(1, 1 - abs / maxDeltaMs))
 
   const tier =
-    value >= 0.85 ? 'high'
-    : value >= 0.50 ? 'medium'
+    value >= 0.75 ? 'high'
+    : value >= 0.40 ? 'medium'
     : value > 0 ? 'low'
     : 'none'
 
   const deltaStr = `${(abs / 1000).toFixed(1)}s`
-  const reason =
-    method === 'interpolated'
-      ? `Interpolated between two references (Δ${deltaStr})`
-      : `Nearest reference at Δ${deltaStr}`
-
-  return { value, tier, reason }
+  return { value, tier, reason: `Nearest reference at Δ${deltaStr}` }
 }

@@ -10,7 +10,6 @@ export interface SettingsSlice {
 const DEFAULT_SETTINGS: AppSettings = {
   timeOffsetMs: 0,
   maxDeltaMs: 5 * 60 * 1000, // 5 minutes
-  interpolate: true,
 }
 
 export const createSettingsSlice: StateCreator<AppStore, [['zustand/immer', never]], [], SettingsSlice> =

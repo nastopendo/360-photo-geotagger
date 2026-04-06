@@ -46,18 +46,6 @@ export function ThresholdControl() {
         ))}
       </div>
 
-      <div className="mt-1.5 flex items-center gap-2">
-        <input
-          id="interpolate"
-          type="checkbox"
-          checked={settings.interpolate}
-          onChange={(e) => updateSettings({ interpolate: e.target.checked })}
-          className="rounded accent-blue-600"
-        />
-        <label htmlFor="interpolate" className="text-xs text-gray-600">
-          Interpolate between bracketing photos
-        </label>
-      </div>
     </div>
   )
 }

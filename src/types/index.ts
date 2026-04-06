@@ -45,7 +45,7 @@ export interface ReferencePhoto extends RawFileEntry {
 
 // ── Match result ───────────────────────────────────────────────────────────
 
-export type MatchMethod = 'nearest' | 'interpolated' | 'manual' | 'unmatched'
+export type MatchMethod = 'nearest' | 'manual' | 'unmatched'
 
 export interface MatchResult {
   photo360Id: string
@@ -58,11 +58,6 @@ export interface MatchResult {
   nearestRefId: string | null
   /** Signed delta in ms: positive = ref is after the 360 photo */
   timeDeltaMs: number | null
-
-  /** Second reference photo used for interpolation */
-  secondRefId: string | null
-  /** 0.0 = at nearestRef, 1.0 = at secondRef */
-  interpolationFraction: number | null
 
   confidence: ConfidenceScore
 
@@ -84,8 +79,6 @@ export interface AppSettings {
   timeOffsetMs: number
   /** Maximum allowed time delta for a match (ms); default 5 min */
   maxDeltaMs: number
-  /** When true, interpolate between bracketing reference photos */
-  interpolate: boolean
 }
 
 // ── JPEG segment ───────────────────────────────────────────────────────────

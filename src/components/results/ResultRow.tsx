@@ -14,7 +14,6 @@ interface ResultRowProps {
 
 const methodLabel: Record<MatchResult['method'], string> = {
   nearest: 'Nearest',
-  interpolated: 'Interpolated',
   manual: 'Manual',
   unmatched: '—',
 }

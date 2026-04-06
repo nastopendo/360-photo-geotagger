@@ -2,20 +2,49 @@ export function Header() {
   return (
     <header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 shadow-sm">
       <div className="flex items-center gap-2.5">
-        <svg className="h-7 w-7 text-blue-600" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="2" />
-          <ellipse cx="16" cy="16" rx="13" ry="5.5" stroke="currentColor" strokeWidth="1.5" />
-          <line x1="16" y1="3" x2="16" y2="29" stroke="currentColor" strokeWidth="1.5" />
+        <svg
+          className="h-7 w-7 text-blue-600"
+          viewBox="0 0 32 32"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            cx="16"
+            cy="16"
+            r="13"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
+          <ellipse
+            cx="16"
+            cy="16"
+            rx="13"
+            ry="5.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
+          <line
+            x1="16"
+            y1="3"
+            x2="16"
+            y2="29"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
           <circle cx="16" cy="16" r="2.5" fill="currentColor" />
         </svg>
         <div>
-          <h1 className="text-base font-bold leading-tight text-gray-900">360° Photo Geotagger</h1>
-          <p className="text-xs text-gray-500 leading-none">Geotag panoramas using GPS reference photos</p>
+          <h1 className="text-base font-bold leading-tight text-gray-900">
+            360° Photo Geotagger
+          </h1>
+          <p className="text-xs text-gray-500 leading-none">
+            Geotag panoramas using GPS reference photos
+          </p>
         </div>
       </div>
 
       <a
-        href="https://github.com/grzegorz/360-photo-geotagger"
+        href="https://github.com/nastopendo/360-photo-geotagger"
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs text-gray-600 hover:bg-gray-100 transition-colors"
@@ -26,5 +55,5 @@ export function Header() {
         GitHub
       </a>
     </header>
-  )
+  );
 }

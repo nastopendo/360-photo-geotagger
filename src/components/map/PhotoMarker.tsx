@@ -34,9 +34,10 @@ interface PhotoMarkerProps {
   result: MatchResult
   isSelected: boolean
   onSelect: () => void
+  onPreview: () => void
 }
 
-export function PhotoMarker({ result, isSelected, onSelect }: PhotoMarkerProps) {
+export function PhotoMarker({ result, isSelected, onSelect, onPreview }: PhotoMarkerProps) {
   const gps = result.assignedGps!
 
   return (
@@ -46,8 +47,10 @@ export function PhotoMarker({ result, isSelected, onSelect }: PhotoMarkerProps) 
       eventHandlers={{ click: onSelect }}
     >
       <Popup>
-        <div className="text-xs">
-          <div className="font-semibold mb-1">{result.photo360Id}</div>
+        <div className="text-xs" style={{ minWidth: 160 }}>
+          <div className="font-semibold mb-1 truncate max-w-[160px]" title={result.photo360Id}>
+            {result.photo360Id}
+          </div>
           <div>Method: {result.method}</div>
           <div>Confidence: {result.confidence.tier} ({(result.confidence.value * 100).toFixed(0)}%)</div>
           {result.timeDeltaMs !== null && (
@@ -56,6 +59,13 @@ export function PhotoMarker({ result, isSelected, onSelect }: PhotoMarkerProps) 
           <div className="mt-1 font-mono text-gray-500">
             {gps.lat.toFixed(6)}, {gps.lng.toFixed(6)}
           </div>
+
+          <button
+            className="mt-2 w-full rounded bg-blue-600 px-3 py-1.5 text-center text-xs font-medium text-white hover:bg-blue-700"
+            onClick={(e) => { e.stopPropagation(); onPreview() }}
+          >
+            Podgląd zdjęć
+          </button>
         </div>
       </Popup>
     </Marker>

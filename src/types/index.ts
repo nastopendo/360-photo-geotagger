@@ -64,6 +64,9 @@ export interface MatchResult {
   /** User-supplied override; replaces assignedGps when present */
   manualOverride: GpsCoordinate | null
   overrideNote: string
+
+  /** User explicitly excluded this location match; GPS won't be written on export */
+  excluded: boolean
 }
 
 export interface ConfidenceScore {

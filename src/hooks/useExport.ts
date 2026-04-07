@@ -21,7 +21,7 @@ export function useExport() {
     return results.map((result) => {
       const photo = photos360.find((p) => p.id === result.photo360Id)
       const ref = result.nearestRefId ? refMap.get(result.nearestRefId) : undefined
-      const gps = result.assignedGps
+      const gps = result.excluded ? null : result.assignedGps
       return {
         filename: photo?.name ?? result.photo360Id,
         status: gps ? 'ok' : 'no_match',

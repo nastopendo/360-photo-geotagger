@@ -25,6 +25,7 @@ function matchOne(
     photo360Id: photo.id,
     manualOverride: null,
     overrideNote: '',
+    excluded: false,
   }
 
   if (!photo.timestamp || sortedRefs.length === 0) {

@@ -10,6 +10,8 @@ export interface MatchSlice {
   applyManualOverride: (photo360Id: string, gps: GpsCoordinate, note?: string) => void
   clearManualOverride: (photo360Id: string) => void
   selectPhoto360: (id: string | null) => void
+  excludePhoto360: (photo360Id: string) => void
+  includePhoto360: (photo360Id: string) => void
 }
 
 export const createMatchSlice: StateCreator<AppStore, [['zustand/immer', never]], [], MatchSlice> =
@@ -19,7 +21,11 @@ export const createMatchSlice: StateCreator<AppStore, [['zustand/immer', never]]
 
     setResults: (results) =>
       set((s) => {
-        s.results = results
+        const excludedIds = new Set(s.results.filter((r) => r.excluded).map((r) => r.photo360Id))
+        s.results = results.map((r) => ({
+          ...r,
+          excluded: excludedIds.has(r.photo360Id),
+        }))
       }),
 
     applyManualOverride: (photo360Id, gps, note = '') =>
@@ -50,5 +56,17 @@ export const createMatchSlice: StateCreator<AppStore, [['zustand/immer', never]]
     selectPhoto360: (id) =>
       set((s) => {
         s.selectedPhoto360Id = id
+      }),
+
+    excludePhoto360: (photo360Id) =>
+      set((s) => {
+        const result = s.results.find((r) => r.photo360Id === photo360Id)
+        if (result) result.excluded = true
+      }),
+
+    includePhoto360: (photo360Id) =>
+      set((s) => {
+        const result = s.results.find((r) => r.photo360Id === photo360Id)
+        if (result) result.excluded = false
       }),
   })

@@ -10,7 +10,8 @@ export function ResultsTable() {
 
   if (results.length === 0) return null
 
-  const matchedCount = results.filter((r) => r.method !== 'unmatched').length
+  const matchedCount = results.filter((r) => r.method !== 'unmatched' && !r.excluded).length
+  const excludedCount = results.filter((r) => r.excluded).length
 
   return (
     <div className="flex flex-col overflow-hidden rounded-b-lg border border-t-0 border-gray-200 bg-white">
@@ -18,9 +19,16 @@ export function ResultsTable() {
         <h2 className="text-sm font-semibold text-gray-700">
           Results
         </h2>
-        <span className="text-xs text-gray-500">
-          {matchedCount} / {results.length} matched
-        </span>
+        <div className="flex items-center gap-2">
+          {excludedCount > 0 && (
+            <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-600">
+              {excludedCount} excluded
+            </span>
+          )}
+          <span className="text-xs text-gray-500">
+            {matchedCount} / {results.length} matched
+          </span>
+        </div>
       </div>
 
       <div className="overflow-auto">

@@ -2,6 +2,7 @@ import type { Photo360, ReferencePhoto } from '@/types'
 import { formatTimestamp } from '@/lib/utils/date'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
+import { useObjectUrl } from '@/hooks/useObjectUrl'
 
 interface FileListProps {
   files: (Photo360 | ReferencePhoto)[]
@@ -13,6 +14,19 @@ function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes}B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)}KB`
   return `${(bytes / 1024 / 1024).toFixed(1)}MB`
+}
+
+function FileThumbnail({ file }: { file: File }) {
+  const url = useObjectUrl(file)
+  if (!url) return <div className="h-8 w-8 shrink-0 rounded bg-gray-200" />
+  return (
+    <img
+      src={url}
+      alt=""
+      className="h-8 w-8 shrink-0 rounded object-cover"
+      loading="lazy"
+    />
+  )
 }
 
 export function FileList({ files, type, onRemove }: FileListProps) {
@@ -28,6 +42,8 @@ export function FileList({ files, type, onRemove }: FileListProps) {
 
         return (
           <li key={f.id} className="flex items-center gap-2 rounded-md bg-gray-50 px-2 py-1 text-xs">
+            <FileThumbnail file={f.file} />
+
             <span className="flex-1 truncate font-medium text-gray-700" title={f.name}>
               {f.name}
             </span>

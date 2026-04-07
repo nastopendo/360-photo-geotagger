@@ -25,7 +25,7 @@ export async function buildZip(
   for (let i = 0; i < photos360.length; i++) {
     const photo = photos360[i]
     const result = resultMap.get(photo.id)
-    const effectiveGps = result?.assignedGps ?? null
+    const effectiveGps = result?.excluded ? null : (result?.assignedGps ?? null)
 
     onProgress?.(i, photos360.length)
 

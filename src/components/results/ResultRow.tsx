@@ -154,7 +154,8 @@ export function ResultRow({ result, photo360, referencePhoto, isSelected, onSele
               }`}
               onClick={(e) => {
                 e.stopPropagation()
-                isExcluded ? includePhoto360(result.photo360Id) : excludePhoto360(result.photo360Id)
+                if (isExcluded) includePhoto360(result.photo360Id)
+                else excludePhoto360(result.photo360Id)
               }}
               title={isExcluded ? 'Restore location match' : 'Exclude location match'}
             >

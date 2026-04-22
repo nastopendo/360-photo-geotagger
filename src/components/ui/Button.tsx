@@ -6,10 +6,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<NonNullable<ButtonProps['variant']>, string> = {
-  primary: 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300',
-  secondary: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 disabled:opacity-50',
-  danger: 'bg-red-600 text-white hover:bg-red-700 disabled:opacity-50',
-  ghost: 'text-gray-600 hover:bg-gray-100 disabled:opacity-50',
+  primary:
+    'bg-sky text-white hover:bg-sky-light shadow-[0_0_14px_rgba(68,144,245,0.25)] hover:shadow-[0_0_18px_rgba(68,144,245,0.35)] disabled:bg-sky/40 disabled:shadow-none',
+  secondary:
+    'bg-panel text-ink-soft border border-line hover:bg-hover hover:text-ink hover:border-line-soft disabled:opacity-40',
+  danger:
+    'bg-cut/10 text-cut border border-cut/30 hover:bg-cut/20 hover:border-cut/50 disabled:opacity-40',
+  ghost:
+    'text-ink-soft hover:bg-panel hover:text-ink disabled:opacity-40',
 }
 
 const sizeClasses: Record<NonNullable<ButtonProps['size']>, string> = {
@@ -21,7 +25,7 @@ const sizeClasses: Record<NonNullable<ButtonProps['size']>, string> = {
 export function Button({ variant = 'primary', size = 'md', className = '', ...props }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky/40 disabled:cursor-not-allowed ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
       {...props}
     />
   )

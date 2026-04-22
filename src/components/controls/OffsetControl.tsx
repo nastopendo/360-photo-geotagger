@@ -24,13 +24,13 @@ function formatOffset(ms: number): string {
   const s = Math.floor((abs % 60000) / 1000)
   if (h > 0) return `${sign}${h}h ${m > 0 || s > 0 ? `${m}m ` : ''}${s > 0 ? `${s}s` : ''}`.trim()
   if (m > 0) return `${sign}${m}m${s > 0 ? ` ${s}s` : ''}`
+  if (s === 0 && ms === 0) return '0'
   return `${sign}${s}s`
 }
 
 export function OffsetControl() {
   const { settings, updateSettings } = useStore()
   const offsetMs = settings.timeOffsetMs
-  // Fine slider operates on top of the hour-rounded base
   const hourBase = Math.round(offsetMs / 3600000) * 3600000
   const fineMs = offsetMs - hourBase
   const [inputVal, setInputVal] = useState('')
@@ -50,20 +50,22 @@ export function OffsetControl() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-1">
-        <label className="text-xs font-semibold text-gray-700">Time offset</label>
-        <span className="text-xs font-mono text-gray-500">{formatOffset(offsetMs)}</span>
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-medium text-ink-soft">Time offset</label>
+        <span className="font-mono text-xs text-sky">{formatOffset(offsetMs)}</span>
       </div>
 
-      {/* Hour-level presets (DST / timezone) */}
-      <div className="flex justify-between mb-2">
+      {/* Hour presets as segmented control */}
+      <div className="flex overflow-hidden rounded-lg border border-line bg-panel">
         {HOUR_PRESETS.map(({ label, value }) => (
           <button
             key={value}
             onClick={() => updateSettings({ timeOffsetMs: value + fineMs })}
-            className={`text-xs px-1.5 py-0.5 rounded transition-colors ${
-              hourBase === value ? 'bg-blue-600 text-white' : 'text-gray-500 hover:bg-gray-100'
+            className={`flex-1 py-1 text-[11px] font-medium transition-colors ${
+              hourBase === value
+                ? 'bg-sky text-white'
+                : 'text-ink-mute hover:text-ink hover:bg-hover'
             }`}
           >
             {label}
@@ -71,7 +73,7 @@ export function OffsetControl() {
         ))}
       </div>
 
-      {/* Fine slider ±10 minutes on top of hour base */}
+      {/* Fine slider */}
       <input
         id="time-offset"
         type="range"
@@ -80,24 +82,22 @@ export function OffsetControl() {
         step={1}
         value={Math.round(fineMs / 1000)}
         onChange={handleFineSlider}
-        className="w-full accent-blue-600"
       />
 
-      {/* Fine presets */}
-      <div className="mt-1 flex justify-between items-center">
+      {/* Fine presets + manual input */}
+      <div className="flex items-center justify-between">
         <div className="flex gap-1">
           {FINE_PRESETS.map(({ label, value }) => (
             <button
               key={value}
               onClick={() => updateSettings({ timeOffsetMs: hourBase + fineMs + value })}
-              className="text-xs px-1.5 py-0.5 rounded text-gray-500 hover:bg-gray-100 transition-colors"
+              className="rounded-md px-1.5 py-0.5 text-[11px] text-ink-mute hover:bg-panel hover:text-ink transition-colors"
             >
               {label}
             </button>
           ))}
         </div>
 
-        {/* Manual input in minutes */}
         {editing ? (
           <input
             autoFocus
@@ -107,20 +107,20 @@ export function OffsetControl() {
             onBlur={handleInputCommit}
             onKeyDown={(e) => { if (e.key === 'Enter') handleInputCommit() }}
             placeholder="min"
-            className="w-16 text-xs text-right border border-blue-400 rounded px-1 py-0.5 font-mono outline-none"
+            className="w-16 rounded-lg border border-sky/40 bg-panel px-2 py-0.5 text-[11px] font-mono text-ink outline-none focus:border-sky/70"
           />
         ) : (
           <button
             onClick={() => { setInputVal(String(offsetMs / 60000)); setEditing(true) }}
-            className="text-xs text-blue-500 hover:underline"
+            className="text-[11px] text-sky/70 hover:text-sky transition-colors"
           >
             set min…
           </button>
         )}
       </div>
 
-      <p className="mt-1 text-xs text-gray-400">
-        Applied to 360° timestamps before matching. Use hour presets for DST/timezone differences.
+      <p className="text-[10px] text-ink-mute leading-relaxed">
+        Applied to 360° timestamps before matching. Use hour presets for DST / timezone.
       </p>
     </div>
   )

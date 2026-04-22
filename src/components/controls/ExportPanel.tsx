@@ -13,23 +13,25 @@ export function ExportPanel() {
   if (results.length === 0) return null
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs font-semibold text-gray-700">Export</h3>
-        <span className="text-xs text-gray-500">{matchedCount} matched</span>
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-ink-mute">Export</p>
+        <span className="rounded-full bg-match/15 px-2 py-0.5 text-[11px] font-medium text-match">
+          {matchedCount} matched
+        </span>
       </div>
 
       <Button
         variant="primary"
         size="sm"
-        className="w-full mb-2"
+        className="w-full"
         onClick={exportZip}
         disabled={isBuilding || matchedCount === 0}
       >
         {isBuilding ? (
           <>
             <Spinner size="sm" />
-            <span>{progress}%</span>
+            <span className="font-mono">{progress}%</span>
           </>
         ) : (
           <>

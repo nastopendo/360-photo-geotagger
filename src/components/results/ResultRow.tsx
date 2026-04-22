@@ -58,19 +58,21 @@ export function ResultRow({ result, photo360, referencePhoto, isSelected, onSele
 
   return (
     <tr
-      className={`border-b border-gray-100 text-xs transition-colors ${
+      className={`border-b border-line/40 text-[11px] transition-colors ${
         isExcluded
-          ? 'bg-gray-50 opacity-60 cursor-pointer hover:opacity-80'
+          ? 'opacity-40 cursor-pointer hover:opacity-60'
           : editing
-            ? 'bg-yellow-50'
+            ? 'bg-caution/5'
             : isSelected
-              ? 'bg-blue-50 cursor-pointer hover:bg-blue-50'
-              : 'cursor-pointer hover:bg-blue-50'
+              ? 'bg-sky/10 cursor-pointer'
+              : 'cursor-pointer hover:bg-hover'
       }`}
       onClick={editing ? undefined : onSelect}
     >
       <td
-        className={`max-w-[140px] truncate py-2 pl-3 pr-2 font-medium ${isExcluded ? 'text-gray-400 line-through' : 'text-gray-800'}`}
+        className={`max-w-[140px] truncate py-2 pl-4 pr-2 font-medium ${
+          isExcluded ? 'text-ink-mute line-through' : 'text-ink-soft'
+        }`}
         title={photo360.name}
       >
         {photo360.name}
@@ -80,25 +82,27 @@ export function ResultRow({ result, photo360, referencePhoto, isSelected, onSele
         <ConfidenceBadge confidence={result.confidence} showValue />
       </td>
 
-      <td className="py-2 pr-2 text-gray-600">
+      <td className="py-2 pr-2 text-ink-mute">
         {isExcluded ? (
-          <span className="rounded bg-red-100 px-1 py-0.5 text-xs font-medium text-red-600">excluded</span>
+          <span className="rounded-md bg-cut/10 px-1.5 py-0.5 text-[10px] font-medium text-cut">
+            excluded
+          </span>
         ) : result.method === 'unmatched' ? (
-          <span className="text-gray-400 italic">unmatched</span>
+          <span className="italic text-ink-mute">unmatched</span>
         ) : (
-          methodLabel[result.method]
+          <span className="text-ink-soft">{methodLabel[result.method]}</span>
         )}
       </td>
 
-      <td className="py-2 pr-2 text-gray-500">
+      <td className="py-2 pr-2 font-mono text-ink-mute">
         {result.timeDeltaMs !== null ? formatDelta(result.timeDeltaMs) : '—'}
       </td>
 
-      <td className="py-2 pr-2 text-gray-500 truncate max-w-[120px]" title={referencePhoto?.name}>
+      <td className="max-w-[120px] truncate py-2 pr-2 text-ink-mute" title={referencePhoto?.name}>
         {referencePhoto?.name ?? '—'}
       </td>
 
-      <td className="py-2 pr-3">
+      <td className="py-2 pr-4">
         {editing ? (
           <form className="flex items-center gap-1" onSubmit={commitEdit}>
             <input
@@ -106,22 +110,34 @@ export function ResultRow({ result, photo360, referencePhoto, isSelected, onSele
               value={latStr}
               onChange={(e) => setLatStr(e.target.value)}
               placeholder="lat"
-              className="w-20 rounded border border-blue-400 px-1 py-0.5 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-20 rounded-lg border border-sky/40 bg-panel px-1.5 py-0.5 font-mono text-[11px] text-ink outline-none focus:border-sky/70"
               onClick={(e) => e.stopPropagation()}
             />
             <input
               value={lngStr}
               onChange={(e) => setLngStr(e.target.value)}
               placeholder="lng"
-              className="w-20 rounded border border-blue-400 px-1 py-0.5 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-20 rounded-lg border border-sky/40 bg-panel px-1.5 py-0.5 font-mono text-[11px] text-ink outline-none focus:border-sky/70"
               onClick={(e) => e.stopPropagation()}
             />
-            <button type="submit" className="font-bold text-green-600 hover:text-green-700" onClick={(e) => e.stopPropagation()}>✓</button>
-            <button type="button" className="font-bold text-gray-400 hover:text-gray-600" onClick={(e) => { e.stopPropagation(); cancelEdit() }}>✗</button>
+            <button
+              type="submit"
+              className="font-bold text-match hover:text-match/80"
+              onClick={(e) => e.stopPropagation()}
+            >
+              ✓
+            </button>
+            <button
+              type="button"
+              className="font-bold text-ink-mute hover:text-ink-soft"
+              onClick={(e) => { e.stopPropagation(); cancelEdit() }}
+            >
+              ✗
+            </button>
           </form>
         ) : (
-          <div className="flex items-center gap-1 group">
-            <span className="font-mono text-gray-600">
+          <div className="group flex items-center gap-1">
+            <span className="font-mono text-ink-mute">
               {effectiveGps
                 ? `${effectiveGps.lat.toFixed(5)}, ${effectiveGps.lng.toFixed(5)}`
                 : '—'}
@@ -129,35 +145,41 @@ export function ResultRow({ result, photo360, referencePhoto, isSelected, onSele
             {!isExcluded && (
               <>
                 <button
-                  className="invisible group-hover:visible text-gray-400 hover:text-blue-600"
+                  className="invisible group-hover:visible text-ink-mute hover:text-sky transition-colors"
                   onClick={startEdit}
                   title="Edit coordinates"
                 >
-                  ✏️
+                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z" />
+                  </svg>
                 </button>
                 {result.manualOverride && (
                   <button
-                    className="invisible group-hover:visible text-xs text-gray-400 hover:text-red-500"
+                    className="invisible group-hover:visible text-ink-mute hover:text-cut transition-colors"
                     onClick={(e) => { e.stopPropagation(); clearManualOverride(result.photo360Id) }}
                     title="Clear manual override"
                   >
-                    ↩
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                    </svg>
                   </button>
                 )}
               </>
             )}
             <button
-              className={`invisible group-hover:visible text-xs font-medium ${
+              className={`invisible group-hover:visible text-[10px] font-medium transition-colors ${
                 isExcluded
-                  ? 'text-green-600 hover:text-green-700'
-                  : 'text-red-400 hover:text-red-600'
+                  ? 'text-match hover:text-match/80'
+                  : 'text-cut/70 hover:text-cut'
               }`}
               onClick={(e) => {
                 e.stopPropagation()
                 if (isExcluded) includePhoto360(result.photo360Id)
                 else excludePhoto360(result.photo360Id)
               }}
-              title={isExcluded ? 'Restore location match' : 'Exclude location match'}
+              title={isExcluded ? 'Restore' : 'Exclude'}
             >
               {isExcluded ? 'restore' : 'exclude'}
             </button>

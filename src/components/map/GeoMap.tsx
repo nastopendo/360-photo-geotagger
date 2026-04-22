@@ -53,30 +53,32 @@ function PreviewModal({ state, onClose }: { state: PreviewState; onClose: () => 
   return createPortal(
     /* backdrop */
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 p-6"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm"
       onClick={onClose}
     >
       {/* modal window */}
       <div
-        className="flex w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-gray-900 shadow-2xl"
+        className="flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl"
         style={{ height: 'min(80vh, 640px)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-gray-700 px-4 py-2">
-          <div className="flex min-w-0 items-center gap-3 text-xs text-gray-300">
-            <span className="truncate" title={state.refPhoto?.name}>
-              <span className="text-gray-500">Ref: </span>{state.refPhoto?.name ?? '—'}
+        <div className="flex shrink-0 items-center justify-between border-b border-line bg-panel px-4 py-2.5">
+          <div className="flex min-w-0 items-center gap-3 text-[11px] text-ink-soft">
+            <span className="flex items-center gap-1.5 truncate" title={state.refPhoto?.name}>
+              <span className="h-1.5 w-1.5 rounded-full bg-match shrink-0" />
+              <span className="text-ink-mute">Ref:</span> {state.refPhoto?.name ?? '—'}
             </span>
-            <span className="text-gray-600">|</span>
-            <span className="truncate" title={state.photo360.name}>
-              <span className="text-gray-500">360°: </span>{state.photo360.name}
+            <span className="text-line-soft">|</span>
+            <span className="flex items-center gap-1.5 truncate" title={state.photo360.name}>
+              <span className="h-1.5 w-1.5 rounded-full bg-sky shrink-0" />
+              <span className="text-ink-mute">360°:</span> {state.photo360.name}
             </span>
           </div>
           <button
-            className="ml-4 shrink-0 rounded p-1 text-gray-400 hover:bg-gray-700 hover:text-white"
+            className="ml-4 shrink-0 rounded-lg p-1.5 text-ink-mute hover:bg-hover hover:text-ink transition-colors"
             onClick={onClose}
-            title="Zamknij (Esc)"
+            title="Close (Esc)"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -87,11 +89,11 @@ function PreviewModal({ state, onClose }: { state: PreviewState; onClose: () => 
         {/* split view */}
         <div className="flex flex-1 min-h-0">
           {/* left — reference photo */}
-          <div className="flex flex-1 min-w-0 flex-col border-r border-gray-700">
-            <div className="shrink-0 bg-gray-800 px-3 py-1 text-xs text-gray-400">
-              Zdjęcie referencyjne (lokalizacja GPS)
+          <div className="flex flex-1 min-w-0 flex-col border-r border-line">
+            <div className="shrink-0 bg-panel px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-ink-mute">
+              Reference Photo (GPS source)
             </div>
-            <div className="flex flex-1 items-center justify-center overflow-hidden bg-gray-950">
+            <div className="flex flex-1 items-center justify-center overflow-hidden bg-base">
               {refUrl ? (
                 <img
                   src={refUrl}
@@ -100,8 +102,8 @@ function PreviewModal({ state, onClose }: { state: PreviewState; onClose: () => 
                   draggable={false}
                 />
               ) : (
-                <span className="text-sm text-gray-500">
-                  {state.refPhoto ? 'Ładowanie…' : 'Brak zdjęcia referencyjnego'}
+                <span className="text-sm text-ink-mute">
+                  {state.refPhoto ? 'Loading…' : 'No reference photo'}
                 </span>
               )}
             </div>
@@ -109,14 +111,14 @@ function PreviewModal({ state, onClose }: { state: PreviewState; onClose: () => 
 
           {/* right — 360° viewer */}
           <div className="flex flex-1 min-w-0 flex-col">
-            <div className="shrink-0 bg-gray-800 px-3 py-1 text-xs text-gray-400">
-              Zdjęcie 360° — przeciągnij aby obracać · scroll aby zoom
+            <div className="shrink-0 bg-panel px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-ink-mute">
+              360° Panorama — drag to rotate · scroll to zoom
             </div>
             {panoUrl
               ? <Panorama360 url={panoUrl} className="flex-1 min-h-0 w-full" />
               : (
-                <div className="flex flex-1 items-center justify-center bg-gray-950">
-                  <span className="text-sm text-gray-500">Ładowanie…</span>
+                <div className="flex flex-1 items-center justify-center bg-base">
+                  <span className="text-sm text-ink-mute">Loading…</span>
                 </div>
               )
             }

@@ -11,12 +11,12 @@ export function ThresholdControl() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-1">
-        <label htmlFor="max-delta" className="text-xs font-semibold text-gray-700">
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-between">
+        <label htmlFor="max-delta" className="text-xs font-medium text-ink-soft">
           Max time gap
         </label>
-        <span className="text-xs font-mono text-gray-500">{maxMin}m</span>
+        <span className="font-mono text-xs text-sky">{maxMin}m</span>
       </div>
 
       <input
@@ -27,25 +27,23 @@ export function ThresholdControl() {
         step={1}
         value={maxMin}
         onChange={handleChange}
-        className="w-full accent-blue-600"
       />
 
-      <div className="mt-1 flex justify-between">
+      <div className="flex gap-1">
         {PRESETS_MIN.map((min) => (
           <button
             key={min}
             onClick={() => updateSettings({ maxDeltaMs: min * 60_000 })}
-            className={`text-xs px-1.5 py-0.5 rounded transition-colors ${
+            className={`rounded-md px-1.5 py-0.5 text-[11px] font-medium transition-colors ${
               settings.maxDeltaMs === min * 60_000
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-500 hover:bg-gray-100'
+                ? 'bg-sky/20 text-sky'
+                : 'text-ink-mute hover:bg-panel hover:text-ink'
             }`}
           >
             {min}m
           </button>
         ))}
       </div>
-
     </div>
   )
 }

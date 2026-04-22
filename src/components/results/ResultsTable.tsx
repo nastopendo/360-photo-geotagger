@@ -14,19 +14,19 @@ export function ResultsTable() {
   const excludedCount = results.filter((r) => r.excluded).length
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-b-lg border border-t-0 border-gray-200 bg-white">
-      <div className="flex items-center justify-between border-b border-gray-100 px-3 py-2">
-        <h2 className="text-sm font-semibold text-gray-700">
+    <div className="flex flex-col overflow-hidden border-t border-line bg-surface">
+      <div className="flex items-center justify-between border-b border-line bg-panel px-4 py-2">
+        <h2 className="text-[10px] font-semibold uppercase tracking-widest text-ink-mute">
           Results
         </h2>
         <div className="flex items-center gap-2">
           {excludedCount > 0 && (
-            <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-600">
+            <span className="rounded-full bg-cut/10 px-2 py-0.5 text-[11px] font-medium text-cut">
               {excludedCount} excluded
             </span>
           )}
-          <span className="text-xs text-gray-500">
-            {matchedCount} / {results.length} matched
+          <span className="font-mono text-[11px] text-ink-mute">
+            {matchedCount}/{results.length}
           </span>
         </div>
       </div>
@@ -34,13 +34,13 @@ export function ResultsTable() {
       <div className="overflow-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500">
-              <th className="py-2 pl-3 pr-2">360° Photo</th>
-              <th className="py-2 pr-2">Confidence</th>
+            <tr className="border-b border-line text-left text-[10px] font-semibold uppercase tracking-wider text-ink-mute">
+              <th className="py-2 pl-4 pr-2">360° Photo</th>
+              <th className="py-2 pr-2">Conf.</th>
               <th className="py-2 pr-2">Method</th>
               <th className="py-2 pr-2">Δ Time</th>
               <th className="py-2 pr-2">Matched to</th>
-              <th className="py-2 pr-3">Coordinates</th>
+              <th className="py-2 pr-4">Coordinates</th>
             </tr>
           </thead>
           <tbody>

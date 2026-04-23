@@ -1,28 +1,45 @@
-export function Header() {
+interface HeaderProps {
+  sidebarCollapsed: boolean
+  onToggleSidebar: () => void
+}
+
+export function Header({ sidebarCollapsed, onToggleSidebar }: HeaderProps) {
   return (
     <header className="flex items-center justify-between border-b border-line bg-surface px-5 py-3 shrink-0">
-      <div className="flex items-center gap-3">
-        <div className="relative flex items-center justify-center">
-          <div className="absolute h-10 w-10 rounded-full bg-sky/10 blur-md" />
-          <svg
-            className="relative h-7 w-7 text-sky"
-            viewBox="0 0 32 32"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="1.5" />
-            <ellipse cx="16" cy="16" rx="13" ry="5.5" stroke="currentColor" strokeWidth="1.2" />
-            <line x1="16" y1="3" x2="16" y2="29" stroke="currentColor" strokeWidth="1.2" />
-            <circle cx="16" cy="16" r="2.5" fill="currentColor" />
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onToggleSidebar}
+          title={sidebarCollapsed ? 'Pokaż panel' : 'Ukryj panel'}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-ink-mute hover:bg-hover hover:text-ink transition-colors"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={sidebarCollapsed ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'} />
           </svg>
-        </div>
-        <div>
-          <h1 className="text-sm font-semibold leading-tight text-ink">
-            360° Photo Geotagger
-          </h1>
-          <p className="mt-0.5 text-[11px] leading-none text-ink-mute">
-            GPS tagging for panoramas
-          </p>
+        </button>
+
+        <div className="flex items-center gap-3">
+          <div className="relative flex items-center justify-center">
+            <div className="absolute h-10 w-10 rounded-full bg-sky/10 blur-md" />
+            <svg
+              className="relative h-7 w-7 text-sky"
+              viewBox="0 0 32 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="1.5" />
+              <ellipse cx="16" cy="16" rx="13" ry="5.5" stroke="currentColor" strokeWidth="1.2" />
+              <line x1="16" y1="3" x2="16" y2="29" stroke="currentColor" strokeWidth="1.2" />
+              <circle cx="16" cy="16" r="2.5" fill="currentColor" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-sm font-semibold leading-tight text-ink">
+              360° Photo Geotagger
+            </h1>
+            <p className="mt-0.5 text-[11px] leading-none text-ink-mute">
+              GPS tagging for panoramas
+            </p>
+          </div>
         </div>
       </div>
 

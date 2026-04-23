@@ -14,6 +14,17 @@ import type { Photo360, ReferencePhoto } from '@/types'
 
 const DEFAULT_CENTER: LatLngExpression = [51.1, 19.5]
 
+function MapInvalidateSize() {
+  const map = useMap()
+  useEffect(() => {
+    const container = map.getContainer()
+    const observer = new ResizeObserver(() => map.invalidateSize())
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [map])
+  return null
+}
+
 function MapFlyTo() {
   const map = useMap()
   const selectedId = useStore((s) => s.selectedPhoto360Id)
@@ -176,6 +187,7 @@ export function GeoMap() {
           </LayersControl.BaseLayer>
         </LayersControl>
 
+        <MapInvalidateSize />
         <MapFlyTo />
         <TrackLine referencePhotos={referencePhotos} />
 

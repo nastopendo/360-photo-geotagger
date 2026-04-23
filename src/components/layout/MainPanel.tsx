@@ -1,9 +1,40 @@
+import { useState, useCallback } from 'react'
 import { useStore } from '@/store'
 import { GeoMap } from '@/components/map/GeoMap'
 import { ResultsTable } from '@/components/results/ResultsTable'
 
+const MIN_HEIGHT = 100
+const MAX_HEIGHT = 560
+const DEFAULT_HEIGHT = 256
+const HEADER_HEIGHT = 33
+
 export function MainPanel() {
   const hasFiles = useStore((s) => s.photos360.length > 0 || s.referencePhotos.length > 0)
+  const [bottomCollapsed, setBottomCollapsed] = useState(false)
+  const [bottomHeight, setBottomHeight] = useState(DEFAULT_HEIGHT)
+  const [isResizing, setIsResizing] = useState(false)
+
+  const onHandleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (bottomCollapsed) return
+    e.preventDefault()
+    const startY = e.clientY
+    const startH = bottomHeight
+    setIsResizing(true)
+
+    const onMove = (ev: MouseEvent) => {
+      const delta = startY - ev.clientY
+      setBottomHeight(Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, startH + delta)))
+    }
+
+    const onUp = () => {
+      setIsResizing(false)
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }, [bottomCollapsed, bottomHeight])
 
   if (!hasFiles) {
     return (
@@ -51,11 +82,56 @@ export function MainPanel() {
 
   return (
     <main className="flex flex-1 flex-col overflow-hidden">
-      <div className="relative flex-1 min-h-0">
+      <div className="relative isolate flex-1 min-h-0">
         <GeoMap />
       </div>
-      <div className="max-h-64 overflow-auto shrink-0">
-        <ResultsTable />
+
+      <div
+        className={`shrink-0 flex flex-col border-t border-line overflow-hidden ${!isResizing ? 'transition-[height] duration-200' : ''}`}
+        style={{ height: bottomCollapsed ? HEADER_HEIGHT : bottomHeight }}
+      >
+        {/* Drag + collapse handle bar */}
+        <div
+          className={`flex h-[33px] shrink-0 items-center justify-between border-b border-line bg-surface px-3 select-none ${!bottomCollapsed ? 'cursor-row-resize hover:bg-hover/50' : ''}`}
+          onMouseDown={onHandleMouseDown}
+        >
+          <div className="flex items-center gap-2">
+            {!bottomCollapsed && (
+              <div className="flex flex-col gap-[3px] pointer-events-none">
+                <div className="flex gap-[3px]">
+                  <span className="h-[3px] w-[3px] rounded-full bg-ink-mute/40" />
+                  <span className="h-[3px] w-[3px] rounded-full bg-ink-mute/40" />
+                  <span className="h-[3px] w-[3px] rounded-full bg-ink-mute/40" />
+                </div>
+                <div className="flex gap-[3px]">
+                  <span className="h-[3px] w-[3px] rounded-full bg-ink-mute/40" />
+                  <span className="h-[3px] w-[3px] rounded-full bg-ink-mute/40" />
+                  <span className="h-[3px] w-[3px] rounded-full bg-ink-mute/40" />
+                </div>
+              </div>
+            )}
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-ink-mute">Results</span>
+          </div>
+
+          <button
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={() => setBottomCollapsed(!bottomCollapsed)}
+            title={bottomCollapsed ? 'Expand results' : 'Collapse results'}
+            className="flex h-6 w-6 items-center justify-center rounded text-ink-mute hover:bg-hover hover:text-ink transition-colors"
+          >
+            <svg
+              className={`h-3.5 w-3.5 transition-transform duration-200 ${bottomCollapsed ? 'rotate-180' : ''}`}
+              fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="overflow-auto flex-1">
+          <ResultsTable />
+        </div>
       </div>
     </main>
   )

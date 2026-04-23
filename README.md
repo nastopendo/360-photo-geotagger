@@ -6,11 +6,14 @@ A browser-based open-source tool that geotags 360° photos without GPS by matchi
 
 - **Drag & drop** two sets of photos: 360° (without GPS) and reference photos (with GPS)
 - **Automatic time matching** — matches each 360° photo to the nearest reference photo by timestamp
-- **GPS interpolation** — optionally interpolates position between two bracketing reference photos
-- **Time offset control** — compensate for camera clock skew (e.g. "360 camera was 30 seconds fast")
+- **Time offset control** — compensate for camera clock skew with hour presets (for DST/timezone) and fine ±second adjustments
 - **Confidence scoring** — see how reliable each match is based on time delta
-- **Interactive map** — visualize all matched positions on an OpenStreetMap-based map
-- **Manual correction** — click the map or type coordinates to override any match
+- **Interactive map** — visualize all matched positions; map auto-fits to loaded GPS points
+- **Satellite & street layers** — switch between Esri satellite imagery and OpenStreetMap
+- **Split-screen preview** — click any map marker to open a side-by-side view of the reference photo and the 360° panorama
+- **Exclude / include** — mark individual matches as excluded; excluded photos are skipped during export
+- **Manual correction** — click a row and type coordinates to override any match
+- **Collapsible sidebar** — collapse the left panel to give the map more room
 - **Export ZIP** — download all geotagged 360° photos in a single archive
 - **CSV / JSON report** — export a structured report of all matches
 
@@ -33,11 +36,11 @@ Then open [http://localhost:5173/360-photo-geotagger/](http://localhost:5173/360
 
 1. **Drop your 360° photos** into the left upload zone (JPEG files without GPS)
 2. **Drop your reference photos** into the right upload zone (any JPEG with GPS in EXIF)
-3. The app reads timestamps and matches photos by time
-4. Adjust the **time offset** if your 360° camera clock was ahead/behind
+3. The app reads timestamps, matches photos by time, and auto-centers the map on the loaded positions
+4. Adjust the **time offset** if your 360° camera clock was ahead/behind (use hour buttons for timezone/DST, fine slider for seconds)
 5. Adjust the **max delta threshold** to control how far apart photos can be to match
-6. Review results in the **table** and on the **map**
-7. **Override** any incorrect match by clicking its row and editing coordinates
+6. Review results in the **table** and on the **map**; click a marker to preview the photo pair side-by-side
+7. **Exclude** any incorrect match by clicking the row toggle; **override** coordinates by editing them directly
 8. Click **Export ZIP** to download all geotagged 360° photos
 
 ## How It Works
@@ -46,10 +49,9 @@ Then open [http://localhost:5173/360-photo-geotagger/](http://localhost:5173/360
 
 For each 360° photo:
 1. Adjust its timestamp by the configured time offset
-2. Binary-search the sorted reference photos to find the nearest before and after
-3. If interpolation is enabled and both bracketing photos are within the max delta → use interpolated position
-4. Otherwise use the nearest photo's GPS position
-5. If no reference photo is within the max delta → mark as unmatched
+2. Binary-search the sorted reference photos to find the nearest match
+3. Use the nearest photo's GPS position
+4. If no reference photo is within the max delta → mark as unmatched
 
 ### Confidence Score
 
@@ -83,7 +85,7 @@ npm run build        # production build
 - **Zustand** + **Immer** — state management
 - **exifr** — EXIF/XMP reading
 - **piexifjs** — EXIF IFD serialization (GPS injection)
-- **react-leaflet** — interactive map
+- **react-leaflet** — interactive map (OpenStreetMap + Esri satellite)
 - **jszip** — ZIP export
 - **papaparse** — CSV generation
 - **Vitest** — unit tests

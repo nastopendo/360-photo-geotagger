@@ -124,3 +124,59 @@ console.log('Written sample-360.jpg', sample360.length, 'bytes')
 // sample-ref.jpg = plain tiny JPEG (GPS will be added by writer.ts)
 writeFileSync(join(__dir, 'sample-ref.jpg'), TINY_JPEG)
 console.log('Written sample-ref.jpg', TINY_JPEG.length, 'bytes')
+
+// ── Build sample-exif.jpg ──────────────────────────────────────────────────
+// Tiny JPEG with an EXIF APP1 (camera metadata, zero GPS) but no XMP.
+// This exercises the piexif.load() path in writer.ts.
+
+// Minimal big-endian TIFF / EXIF — IFD0 with Make + DateTimeOriginal, GPS IFD with zeros
+// Built by hand so we don't need to import piexifjs here.
+// TIFF header: MM 00 2A 00 00 00 08  (big-endian, IFD0 at offset 8)
+// IFD0: 3 entries
+//   tag 0x010F (Make): ASCII "TestCam\0"
+//   tag 0x0132 (DateTime): ASCII "2026:04:04 12:00:00\0"
+//   tag 0x8825 (GPSTag): LONG → offset of GPS IFD
+// GPS IFD: 6 entries  (mirrors a camera that had no lock: all zeros)
+//   tag 0x0000 (GPSVersionID): BYTE [2,3,0,0]
+//   tag 0x0001 (GPSLatitudeRef): ASCII "S\0"
+//   tag 0x0002 (GPSLatitude): RATIONAL [0/1, 0/1, 0/10000]
+//   tag 0x0003 (GPSLongitudeRef): ASCII "W\0"
+//   tag 0x0004 (GPSLongitude): RATIONAL [0/1, 0/1, 0/10000]
+//   tag 0x0009 (GPSStatus): ASCII "V\0"
+
+// We generate the EXIF using piexifjs (loaded via dynamic import in ESM)
+import('../../node_modules/piexifjs/piexif.js').then((piexifModule) => {
+  // piexifjs uses CommonJS exports; in ESM it lands on .default
+  const piexif = piexifModule.default ?? piexifModule
+
+  const exifObj = {
+    '0th': {
+      [271]: 'TestCam',           // Make
+      [306]: '2026:04:04 12:00:00', // DateTime
+    },
+    'Exif': {
+      [36867]: '2026:04:04 12:00:00', // DateTimeOriginal
+    },
+    'GPS': {
+      0: [2, 3, 0, 0],          // GPSVersionID
+      1: 'S',                    // GPSLatitudeRef (no lock → South)
+      2: [[0, 1], [0, 1], [0, 10000]], // GPSLatitude (zeros)
+      3: 'W',                    // GPSLongitudeRef
+      4: [[0, 1], [0, 1], [0, 10000]], // GPSLongitude (zeros)
+      9: 'V',                    // GPSStatus = Void
+    },
+    'Interop': {},
+    '1st': {},
+  }
+
+  const exifStr = piexif.dump(exifObj)
+  const exifBytes = Buffer.from(exifStr, 'binary')
+  const app1 = buildApp1(exifBytes)
+
+  // Insert APP1 right after SOI (first 2 bytes)
+  const soi = TINY_JPEG.slice(0, 2)
+  const afterSoi = TINY_JPEG.slice(2)
+  const sampleExif = Buffer.concat([soi, app1, afterSoi])
+  writeFileSync(join(__dir, 'sample-exif.jpg'), sampleExif)
+  console.log('Written sample-exif.jpg', sampleExif.length, 'bytes')
+})

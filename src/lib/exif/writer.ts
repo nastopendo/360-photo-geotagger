@@ -4,7 +4,6 @@ import {
   parseJpegSegments,
   reconstructJpeg,
   isExifApp1,
-  encodeSegment,
 } from './jpeg-segments'
 import { encodeGpsForPiexif } from './gps-encoding'
 import type { JpegSegment } from '@/types'
@@ -44,10 +43,12 @@ export function injectGpsIntoBuffer(buffer: ArrayBuffer, gps: GpsCoordinate): Ui
   let newExifData: Uint8Array
 
   if (exifSegIdx >= 0) {
-    // Load existing EXIF, add/replace GPS IFD, dump back
+    // Load existing EXIF, add/replace GPS IFD, dump back.
+    // Pass the raw EXIF binary (starting "Exif\0\0") directly to piexif.load() —
+    // this avoids the fake-JPEG wrapper which breaks on files that lack a SOS marker.
     const existingExifSeg = parsed.segments[exifSegIdx]
-    const exifDataUrl = exifSegmentToDataUrl(existingExifSeg)
-    const exifObj = piexif.load(exifDataUrl)
+    const exifBinaryStr = uint8ArrayToBinaryString(existingExifSeg.data)
+    const exifObj = piexif.load(exifBinaryStr)
     exifObj['GPS'] = encodeGpsForPiexif(gps) as unknown as Record<number, unknown>
     const dumped: string = piexif.dump(exifObj)
     newExifData = binaryStringToUint8Array(dumped)
@@ -88,21 +89,12 @@ export function injectGpsIntoBuffer(buffer: ArrayBuffer, gps: GpsCoordinate): Ui
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-/**
- * Convert an EXIF APP1 segment to a minimal data URL that piexifjs.load() accepts.
- * We construct a minimal fake JPEG: SOI + the EXIF APP1 segment + EOI.
- */
-function exifSegmentToDataUrl(seg: JpegSegment): string {
-  const encoded = encodeSegment(seg)
-  const fakeJpeg = new Uint8Array(2 + encoded.length + 2)
-  fakeJpeg[0] = 0xff; fakeJpeg[1] = 0xd8           // SOI
-  fakeJpeg.set(encoded, 2)                           // EXIF APP1
-  fakeJpeg[2 + encoded.length] = 0xff               // EOI
-  fakeJpeg[2 + encoded.length + 1] = 0xd9
-
-  const binary = Array.from(fakeJpeg).map((b) => String.fromCharCode(b)).join('')
-  const base64 = btoa(binary)
-  return `data:image/jpeg;base64,${base64}`
+function uint8ArrayToBinaryString(arr: Uint8Array): string {
+  let str = ''
+  for (let i = 0; i < arr.length; i++) {
+    str += String.fromCharCode(arr[i])
+  }
+  return str
 }
 
 function binaryStringToUint8Array(str: string): Uint8Array {

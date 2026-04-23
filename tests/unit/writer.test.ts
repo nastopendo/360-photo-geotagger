@@ -81,4 +81,20 @@ describe('injectGpsIntoBuffer', () => {
     expect(parsed.latitude).toBeCloseTo(gpsSW.lat, 4)
     expect(parsed.longitude).toBeCloseTo(gpsSW.lng, 4)
   })
+
+  it('injects GPS into sample-exif.jpg which has an existing EXIF APP1 with zero GPS', async () => {
+    // This covers the piexif.load() path — the bug case where real camera files
+    // have an EXIF APP1 and GPS injection failed because the old fake-JPEG wrapper
+    // lacked a SOS marker, causing piexifjs.splitIntoSegments to throw.
+    const buffer = readFixtureAsBuffer('sample-exif.jpg')
+    const output = injectGpsIntoBuffer(buffer, GPS_TARGET)
+
+    const parsed = await exifr.parse(output.buffer as ArrayBuffer, { gps: true, tiff: true })
+    expect(parsed).not.toBeNull()
+    expect(parsed.latitude).toBeCloseTo(GPS_TARGET.lat, 4)
+    expect(parsed.longitude).toBeCloseTo(GPS_TARGET.lng, 4)
+
+    // Original camera metadata should still be present
+    expect(parsed.Make).toBe('TestCam')
+  })
 })

@@ -25,6 +25,41 @@ function MapInvalidateSize() {
   return null
 }
 
+function MapAutoFit() {
+  const map = useMap()
+  const referencePhotos = useStore((s) => s.referencePhotos)
+  const results = useStore((s) => s.results)
+  const prevCountRef = useRef(0)
+
+  useEffect(() => {
+    const points: [number, number][] = []
+
+    for (const ref of referencePhotos) {
+      if (ref.gps) points.push([ref.gps.lat, ref.gps.lng])
+    }
+    for (const result of results) {
+      const gps = result.manualOverride ?? result.assignedGps
+      if (gps && !result.excluded) points.push([gps.lat, gps.lng])
+    }
+
+    if (points.length === 0) {
+      prevCountRef.current = 0
+      return
+    }
+
+    if (points.length > prevCountRef.current) {
+      prevCountRef.current = points.length
+      if (points.length === 1) {
+        map.setView(points[0], Math.max(map.getZoom(), 14))
+      } else {
+        map.fitBounds(points, { padding: [40, 40], maxZoom: 16 })
+      }
+    }
+  }, [referencePhotos, results, map])
+
+  return null
+}
+
 function MapFlyTo() {
   const map = useMap()
   const selectedId = useStore((s) => s.selectedPhoto360Id)
@@ -188,6 +223,7 @@ export function GeoMap() {
         </LayersControl>
 
         <MapInvalidateSize />
+        <MapAutoFit />
         <MapFlyTo />
         <TrackLine referencePhotos={referencePhotos} />
 
